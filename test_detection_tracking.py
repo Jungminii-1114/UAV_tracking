@@ -330,27 +330,23 @@ else:
     else:
         print(f"총 {len(image_files)}장의 이미지를 찾았습니다.")
 
-        # 첫 번째 이미지를 읽어서 영상 크기 결정
+        # 첫 번째 프레임 기준으로 크기 셋팅 
         first_frame = cv2.imread(image_files[0])
         height, width, layers = first_frame.shape
-
-        # 비디오 저장 설정 (FPS는 30으로 설정)
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
         out = cv2.VideoWriter(output_video_path, fourcc, 30, (width, height))
-
-        # 4. 한 장씩 읽으면서 박스 그리고 영상으로 저장
+        
         for i, img_path in enumerate(image_files):
             frame = cv2.imread(img_path)
 
             if frame is None:
                 continue
 
-            # 예측 좌표가 있으면 그리기
+            # 예측 좌표가 있을 때 
             if i < len(predictions):
                 bbox = predictions[i]
                 if len(bbox) == 4: # [x, y, w, h] 형태일 때만
                     x, y, w, h = map(int, bbox)
-                    # 파란색 박스 (BGR: Blue)
                     cv2.rectangle(frame, (x, y), (x+w, y+h), (255, 0, 0), 2)
                     cv2.putText(frame, f"Frame: {i}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
 
