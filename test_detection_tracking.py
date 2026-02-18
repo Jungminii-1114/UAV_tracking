@@ -328,7 +328,7 @@ else:
     if len(image_files) == 0:
         print(f"There is no single image. Check it out at : {image_folder}")
     else:
-        print(f"총 {len(image_files)}장의 이미지를 찾았습니다.")
+        print(f"{len(image_files)} images to process..")
 
         # 첫 번째 프레임 기준으로 크기 셋팅 
         first_frame = cv2.imread(image_files[0])
@@ -353,7 +353,7 @@ else:
             out.write(frame)
 
             if i % 100 == 0:
-                print(f"... {i}번째 프레임 처리 중")
+                print(f"Now processing {i}th frame...")
 
         out.release()
         print(f"\nSaved Visualization Video ")
