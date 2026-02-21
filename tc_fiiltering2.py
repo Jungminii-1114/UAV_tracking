@@ -424,8 +424,8 @@ def main(mode='IR', visualization=False):
                     p0 = cv2.goodFeaturesToTrack(prev_gray, 80, 0.01, 7, blockSize=7)
                     # p0 : Selected corner features at the prev_frame.
                     # Shape of p0 : (N, 1, 2)
-
                     gmc_initialized=True
+
                 elif track_active and gmc_initialized:
                     if p0 is not None and len(p0) > 15:
                         p1, st, err = cv2.calcOpticalFlowPyrLK(
@@ -485,7 +485,6 @@ def main(mode='IR', visualization=False):
                 if len(pred_bbox) > 1:
                     pred_bbox = [float(x) for x in pred_bbox]
 
-                #🚀 여기 추가해? (후보 1)
                 out_res.append(pred_bbox)
 
                 if visualization and len(pred_bbox) > 1:
