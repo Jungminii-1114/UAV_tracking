@@ -40,7 +40,8 @@ https://github.com/user-attachments/assets/65babfa3-9e6d-4e62-b33d-93bb5ddb204d
 
 https://github.com/user-attachments/assets/68895e29-780d-4033-b205-c5f78f4dd765
 
-* **Ours (+ GMC & TC-Filtering)** : Effectively compensates for severe video shaking and robustly ignores stationary false positives. (e.g., Buildings, Clouds, and Trees) in the background. This approach significantly improved tracking success rates and Intersection over Union (IoU) scores.
+### **Ours (+ GMC & TC-Filtering)** 
+**Effectively compensates for severe video shaking and robustly ignores stationary false positives. (e.g., Buildings, Clouds, and Trees) in the background. This approach significantly improved tracking success rates and Intersection over Union (IoU) scores.**
 
 https://github.com/user-attachments/assets/dacfaab7-75d1-47d7-b4a1-bac3fca97281
 
