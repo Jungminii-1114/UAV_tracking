@@ -22,7 +22,8 @@ It maximizes tracking robustness against extremely small drones by applying **Op
 ├── Baseline_code/          # SiamFC model weights (model.pth) and core tracker modules
 ├── video_To_be_Improved    # Results that should be improved
 ├── video_good              # Good Results
-├── README.md               
+├── README.md
+├── TC_Filtering_2.py       # Main execution script with TC-Filtering (Tested for all cases.)
 ├── TC_Filtering.py         # Main execution script with TC-Filtering
 ├── detection_siamfc.py     # 
 ├── siamfc.py               # Results that should be improved
