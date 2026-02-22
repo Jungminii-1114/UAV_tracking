@@ -17,7 +17,7 @@ It maximizes tracking robustness against extremely small drones by applying **Op
 
 ## Repository Structure
 
-\`\`\`text
+```text
 .
 ├── Baseline_code/          # SiamFC model weights (model.pth) and core tracker modules
 ├── video_To_be_Improved    # Results that should be improved
@@ -28,7 +28,7 @@ It maximizes tracking robustness against extremely small drones by applying **Op
 ├── siamfc.py               # Results that should be improved
 ├── test_detection_tracking # Main execution script without TC-Filtering
 ├── test_siamfc.py          # 
-\`\`\`
+```
 
 ## Results
 * **Baseline (YOLO + SiamFC)** : Experienced drifting where the tracking box gets stuck on the screen edges by mistaking background noise for the drone, and easily lost the target during severe camera shaking.
