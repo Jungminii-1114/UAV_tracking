@@ -32,13 +32,17 @@ It maximizes tracking robustness against extremely small drones by applying **Op
 
 ## Results
 * **Baseline (YOLO + SiamFC)** : Experienced drifting where the tracking box gets stuck on the screen edges by mistaking background noise for the drone, and easily lost the target during severe camera shaking.
+
 https://github.com/user-attachments/assets/efd3c908-65b7-406c-84c6-1fd5ea0380cb
+
 https://github.com/user-attachments/assets/65babfa3-9e6d-4e62-b33d-93bb5ddb204d
+
 https://github.com/user-attachments/assets/68895e29-780d-4033-b205-c5f78f4dd765
 
 * **Ours (+ GMC & TC-Filtering)** : Effectively compensates for severe video shaking and robustly ignores stationary false positives. (e.g., Buildings, Clouds, and Trees) in the background. This approach significantly improved tracking success rates and Intersection over Union (IoU) scores.
 
 https://github.com/user-attachments/assets/dacfaab7-75d1-47d7-b4a1-bac3fca97281
+
 https://github.com/user-attachments/assets/e693f604-12d9-450a-bda6-b8ab3f2bcb99
 
 ## References
