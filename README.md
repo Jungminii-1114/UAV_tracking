@@ -31,7 +31,8 @@ It maximizes tracking robustness against extremely small drones by applying **Op
 ```
 
 ## Results
-* **Baseline (YOLO + SiamFC)** : Experienced drifting where the tracking box gets stuck on the screen edges by mistaking background noise for the drone, and easily lost the target during severe camera shaking.
+### **Baseline (YOLO + SiamFC)** 
+**Experienced drifting where the tracking box gets stuck on the screen edges by mistaking background noise for the drone, and easily lost the target during severe camera shaking.**
 
 https://github.com/user-attachments/assets/efd3c908-65b7-406c-84c6-1fd5ea0380cb
 
