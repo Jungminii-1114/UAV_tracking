@@ -21,93 +21,11 @@ from PIL import Image
 from google.colab.patches import cv2_imshow
 from google.colab import userdata
 import matplotlib.pyplot as plt
+import numpy as np
 import os
 
-from google.colab import userdata
-import os
-#Colab Secrets에서 KAGGLE_USERNAME과 KAGGLE_KEY를 가져와 환경 변수로 설정합니다.
-try:
-    os.environ["KAGGLE_USERNAME"] = userdata.get('KAGGLE_USERNAME')
-    os.environ["KAGGLE_KEY"] = userdata.get('KAGGLE_KEY')
-except:
-    print("User info has not been set")
-
-    # Kaggle 데이터셋 다운로드
-print("User info connected successfully!!!")
-print("Kaggle credentials loaded successfully. Downloading dataset...")
-#!kaggle datasets download -d balraj98/berkeley-segmentation-dataset-500-bsds500
-!kaggle datasets download -d yusufberksardoan/traffic-detection-project
-    # 다운로드한 파일 압축 해제
-#!unzip -q berkeley-segmentation-dataset-500-bsds500.zip -d ./bsds500
-!unzip -q traffic-detection-project.zip -d ./traffic_detection_project
-
-print("Dataset Download and Unzip Complete")
-
-head_path = '/content/traffic_detection_project'
-
-test_img_path = os.path.join(head_path, os.path.join("test", "images"))
-test_label_path = os.path.join(head_path, os.path.join("test", "labels"))
-
-train_img_path = os.path.join(head_path, os.path.join("train", "images"))
-train_label_path = os.path.join(head_path, os.path.join("train", "labels"))
-
-val_img_path = os.path.join(head_path, os.path.join("val", "images"))
-val_label_path = os.path.join(head_path, os.path.join("val", "labels"))
-
-sorted_train = sorted(os.listdir(test_img_path))
-check_img_path = os.path.join(test_img_path, sorted_train[2])
-
-for i in range(0, 6):
-    print(os.path.join(test_img_path, sorted_train[i]))
-check_img = cv2.imread(check_img_path)
-check_img.shape
-print("\n\n",check_img_path)
-
-cv2_imshow(check_img)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
-cv2.waitKey(1)
-cv2.waitKey(1)
-cv2.waitKey(1)
-cv2.waitKey(1)
-
-# 0, 1, 2
-# 3, 4, 5, 6
-# 7, 8, 9, 10
-
-check_img.shape
-
-frame_files = []
-for i in range(3):
-    frame_files.append(os.path.join(test_img_path, sorted_train[i]))
-
-for i in range(7,11):
-    frame_files.append(os.path.join(test_img_path, sorted_train[i]))
-
-
-first_frame = cv2.imread(os.path.join(test_img_path, sorted_train[0]))
-height, width, _ = first_frame.shape
-
-fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-
-out = cv2.VideoWriter(
-    "output.mp4",
-    fourcc,
-    30,
-    (width, height)
-)
-
-for file in frame_files:
-    frame_path = os.path.join(test_img_path, file)
-    frame = cv2.imread(frame_path)
-    out.write(frame)
-
-out.release()
-print("Video saved as output.mp4")
 
 """# Tennis"""
-
-import numpy as np
 
 !unzip -q tennis.zip -d ./tennis
 print("Dataset Download and Unzip Complete")
