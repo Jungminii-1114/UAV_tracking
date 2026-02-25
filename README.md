@@ -19,16 +19,17 @@ It maximizes tracking robustness against extremely small drones by applying **Op
 
 ```text
 .
-├── Baseline_code/          # SiamFC model weights (model.pth) and core tracker modules
-├── video_To_be_Improved    # Results that should be improved
-├── video_good              # Good Results
+├── Baseline_code/              # SiamFC model weights (model.pth) and core tracker modules
+├── Optical Flow Implementation # Implementation of Optical Flow to understand
+├── video_To_be_Improved        # Results that should be improved
+├── video_good                  # Good Results
 ├── README.md
-├── TC_Filtering_2.py       # Main execution script with TC-Filtering (Tested for all cases - AOA : 0.6067)
-├── TC_Filtering.py         # Main execution script with TC-Filtering
-├── detection_siamfc.py     # 
-├── siamfc.py               # Results that should be improved
-├── test_detection_tracking # Main execution script without TC-Filtering
-├── test_siamfc.py          # 
+├── TC_Filtering_2.py           # Main execution script with TC-Filtering (Tested for all cases - AOA : 0.6067)
+├── TC_Filtering.py             # Main execution script with TC-Filtering
+├── detection_siamfc.py         # 
+├── siamfc.py                   # Results that should be improved
+├── test_detection_tracking     # Main execution script without TC-Filtering
+├── test_siamfc.py              # 
 ```
 
 ## Results
