@@ -20,7 +20,7 @@ It maximizes tracking robustness against extremely small drones by applying **Op
 ```text
 .
 ├── Baseline_code/                    # SiamFC model weights (model.pth) and core tracker modules
-├── FD with GMC/                      # SiamFC model weights (model.pth) and core tracker modules
+├── FD with GMC/                      # Visualization result of GMC, TC-Filtering, Optical Flow and Frame Difference
 ├── Optical Flow Implementation       # Implementation of Optical Flow to understand
 ├── video_To_be_Improved              # Results that should be improved
 ├── video_good                        # Good Results
