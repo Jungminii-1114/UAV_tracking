@@ -49,6 +49,20 @@ https://github.com/user-attachments/assets/dacfaab7-75d1-47d7-b4a1-bac3fca97281
 
 https://github.com/user-attachments/assets/e693f604-12d9-450a-bda6-b8ab3f2bcb99
 
+## Visualization : TC-Filtering based on GMC (Residual Analysis)
+This visualization demonstrates the core mechanism of our pipeline : **Global Motion Compensation (GMC) combined with Binarization Filtering**. It effectively isolates the target even in challenging scenarios with severe camera moving and thermal clutter.
+
+![new12_train_newfix_frame50_debug](https://github.com/user-attachments/assets/1a4a1e8d-ab3d-4774-aa4d-ad1eeed7f129)
+
+![46_1_frame50_debug](https://github.com/user-attachments/assets/eea44176-686d-4299-af86-7989be61ba6e)
+
+The extracted debug image illustrates the following three stages, from left to right:
+
+1. **Origianl (GrayScale)** : the raw recurrent frame where the tiny drone target is mixed with complex background noise.
+2. **Raw Residual (Pre-thresholding)** : The absolute difference between the current frame and the affine-warped previous frame. The static background is mostly canceld out, leaving only the physically moving target and strong structural edges.
+3. **Thresholded Residual (Post-thresholding)** : The final result after applying a fixed threhold. Minor background residual noise is masked out, cleanly isolating the target candidates with distinct movement as pure white.
+
+
 ## References
 * [CVPR 2025 Anti-UAV Workshop & Challenge](https://anti-uav.github.io/)
 * Paper : *"A Simple Detector with Frame Dynamics is a Strong Tracker"*
