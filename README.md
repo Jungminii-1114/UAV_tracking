@@ -26,10 +26,7 @@ It maximizes tracking robustness against extremely small drones by applying **Op
 ├── video_good                        # Good Results
 ├── README.md
 ├── [TCF]test_detection_tracking.py   # Main execution script with TC-Filtering (Tested for all cases - AOA : 0.6067)
-├── detection_siamfc.py               # 
-├── siamfc.py                         # Results that should be improved
 ├── test_detection_tracking           # Main execution script without TC-Filtering
-├── test_siamfc.py                    # 
 ```
 
 ## Results
