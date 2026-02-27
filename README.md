@@ -62,6 +62,11 @@ The extracted debug image illustrates the following three stages, from left to r
 2. **Raw Residual (Pre-thresholding)** : The absolute difference between the current frame and the affine-warped previous frame. The static background is mostly canceld out, leaving only the physically moving target and strong structural edges.
 3. **Thresholded Residual (Post-thresholding)** : The final result after applying a fixed threhold. Minor background residual noise is masked out, cleanly isolating the target candidates with distinct movement as pure white.
 
+### Description : Motion-Compensated Redisual Analysis
+* **Optical Flow** : Tracks robust background feature points between consecutive frames **to accurately estimate the camera's ego-motion (panning and tilitng).**
+* **Frame Difference** : Utilizes the estimated motion matrix to align (warp) the previous frame to the current frame's perspective, effectively neutralizing camera movement.
+* **GMC** : Suubtracts the GMC-aligned background from the current frame. This eliminates static thermal clutter and isolates only the physically moving target (UAV, drone) as the distinct residual.
+
 
 ## References
 * [CVPR 2025 Anti-UAV Workshop & Challenge](https://anti-uav.github.io/)
