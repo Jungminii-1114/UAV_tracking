@@ -11,13 +11,6 @@ import numpy as np
 import cv2
 from collections import namedtuple
 
-from yolov5.models.common import DetectMultiBackend
-from yolov5.utils.dataloaders import IMG_FORMATS, VID_FORMATS, LoadImages, LoadScreenshots, LoadStreams
-from yolov5.utils.general import (LOGGER, Profile, check_file, check_img_size, check_imshow, check_requirements, colorstr, cv2,
-                           increment_path, non_max_suppression, print_args, scale_boxes, strip_optimizer, xyxy2xywh)
-from yolov5.utils.augmentations import letterbox
-from yolov5.utils.plots import Annotator, colors, save_one_box
-from yolov5.utils.torch_utils import select_device, smart_inference_mode
 
 class SiamFC(nn.Module):
 
@@ -64,7 +57,7 @@ class SiamFC(nn.Module):
 class TrackerSiamFC(object):
 
     def __init__(self, net_path=None, **kargs):
-        self.name = 'Yolo_SiamFC'
+        self.name = 'SiamFC'
         self.cfg = self.parse_args(**kargs)
 
         # setup GPU device if available
@@ -100,132 +93,54 @@ class TrackerSiamFC(object):
             'weight_decay': 5e-4,
             'momentum': 0.9,
             'r_pos': 16,
-            'r_neg': 0,
-            # yolov5 hyperparameters
-            'imgsz': [640, 640],
-            'conf_thres': 0.25,
-            'iou_thres': 0.45,
-            'max_det': 1000,
-            'augment': False,
-            'classes': None,
-            'agnostic_nms': False,
-            'hide_labels': False,
-            'hide_conf': False,
-            'weight': 'yolov5/runs/train/exp/weights/best.pt',
-            'data': 'yolov5/data/antiuav.yaml',
-            'device': 'cpu'}
+            'r_neg': 0}
 
         for key, val in kargs.items():
             if key in cfg:
                 cfg.update({key: val})
         return namedtuple('GenericDict', cfg.keys())(**cfg)
 
-    def initialize_yolo(self):
-        weights = self.cfg.weight  # model.pt path(s)
-        data = self.cfg.data # dataset.yaml path
-        device = self.cfg.device  # cuda device, i.e. 0 or 0,1,2,3 or cpu
-
-        device = select_device(device)
-        model = DetectMultiBackend(weights, device=device, dnn=False, data=data, fp16=False)
-        return model
-
-    def init(self, image, model):
+    def init(self, image, box):
         image = np.asarray(image)
 
-        device = select_device(self.cfg.device)
-        # model = DetectMultiBackend(weights, device=device, dnn=False, data=data, fp16=False)
-        stride, names, pt = model.stride, model.names, model.pt
-        imgsz = check_img_size(self.cfg.imgsz, s=stride)  # check image size
+        # convert box to 0-indexed and center based [y, x, h, w]
+        box = np.array([
+            box[1] - 1 + (box[3] - 1) / 2,
+            box[0] - 1 + (box[2] - 1) / 2,
+            box[3], box[2]], dtype=np.float32)
+        self.center, self.target_sz = box[:2], box[2:]
 
-        # resize_im
-        im = letterbox(image, imgsz, stride=stride, auto=True)[0]  # padded resize
-        im = im.transpose((2, 0, 1))[::-1]  # HWC to CHW, BGR to RGB
-        im = np.ascontiguousarray(im)  # contiguous
-        # Run inference
-        bs = 1
-        model.warmup(imgsz=(1 if pt else bs, 3, *imgsz))  # warmup
-        seen, windows, dt = 0, [], (Profile(), Profile(), Profile())
-        with dt[0]:
-            im = torch.from_numpy(im).to(device)
-            im = im.half() if model.fp16 else im.float()  # uint8 to fp16/32
-            im /= 255  # 0 - 255 to 0.0 - 1.0
-            if len(im.shape) == 3:
-                im = im[None]
-        # Inference
-        with dt[1]:
-            visualize = False
-            pred = model(im, augment=self.cfg.augment, visualize=visualize)
-        # NMS
-        with dt[2]:
-            pred = non_max_suppression(pred, self.cfg.conf_thres, self.cfg.iou_thres, self.cfg.classes,
-                                       self.cfg.agnostic_nms, max_det=self.cfg.max_det)
+        # create hanning window
+        self.upscale_sz = self.cfg.response_up * self.cfg.response_sz
+        self.hann_window = np.outer(
+            np.hanning(self.upscale_sz),
+            np.hanning(self.upscale_sz))
+        self.hann_window /= self.hann_window.sum()
 
-        # Process predictions
-        for i, det in enumerate(pred):  # per image
-            seen += 1
-            im0 = image.copy()
-            if len(det):
-                # Rescale boxes from img_size to im0 size
-                det[:, :4] = scale_boxes(im.shape[2:], det[:, :4], im0.shape).round()
+        # search scale factors
+        self.scale_factors = self.cfg.scale_step ** np.linspace(
+            -(self.cfg.scale_num // 2),
+            self.cfg.scale_num // 2, self.cfg.scale_num)
 
-        if len(det) == 0:
-            return [0], im0
-        else:
-            pred_bbox = np.array(det[0][:4].cpu())
-            target_bbox = [np.float64(pred_bbox[0]), np.float64(pred_bbox[1]), pred_bbox[2]-pred_bbox[0]+1, pred_bbox[3]-pred_bbox[1]+1]  # [x1, y1, w, h]
+        # exemplar and search sizes
+        context = self.cfg.context * np.sum(self.target_sz)
+        self.z_sz = np.sqrt(np.prod(self.target_sz + context))
+        self.x_sz = self.z_sz * \
+            self.cfg.instance_sz / self.cfg.exemplar_sz
 
-            # convert box to 0-indexed and center based [y, x, h, w]
-            box = np.array([
-                target_bbox[1] - 1 + (target_bbox[3] - 1) / 2,
-                target_bbox[0] - 1 + (target_bbox[2] - 1) / 2,
-                target_bbox[3], target_bbox[2]], dtype=np.float32)
-            self.center, self.target_sz = box[:2], box[2:]
+        # exemplar image
+        self.avg_color = np.mean(image, axis=(0, 1))
+        exemplar_image = self._crop_and_resize(
+            image, self.center, self.z_sz,
+            out_size=self.cfg.exemplar_sz,
+            pad_color=self.avg_color)
 
-            # create hanning window
-            self.upscale_sz = self.cfg.response_up * self.cfg.response_sz
-            self.hann_window = np.outer(
-                np.hanning(self.upscale_sz),
-                np.hanning(self.upscale_sz))
-            self.hann_window /= self.hann_window.sum()
-
-            # search scale factors
-            self.scale_factors = self.cfg.scale_step ** np.linspace(
-                -(self.cfg.scale_num // 2),
-                self.cfg.scale_num // 2, self.cfg.scale_num)
-
-            # exemplar and search sizes
-            context = self.cfg.context * np.sum(self.target_sz)
-            self.z_sz = np.sqrt(np.prod(self.target_sz + context))
-            self.x_sz = self.z_sz * \
-                        self.cfg.instance_sz / self.cfg.exemplar_sz
-
-            # exemplar image
-            self.avg_color = np.mean(image, axis=(0, 1))
-            exemplar_image = self._crop_and_resize(
-                image, self.center, self.z_sz,
-                out_size=self.cfg.exemplar_sz,
-                pad_color=self.avg_color)
-
-            # exemplar features
-            exemplar_image = torch.from_numpy(exemplar_image).to(
-                self.device).permute([2, 0, 1]).unsqueeze(0).float()
-            with torch.set_grad_enabled(False):
-                self.net.eval()
-                self.kernel = self.net.feature(exemplar_image)
-
-
-            # visualize using Annotator
-            annotator = Annotator(im0, line_width=3, example=str(names))
-            det_disp = det
-            for *xyxy, conf, cls in reversed(det_disp):
-                c = int(cls)  # integer class
-                label = None if self.cfg.hide_labels else (names[c] if self.cfg.hide_conf else f'{names[c]} {conf:.2f}')
-                annotator.box_label(xyxy, label, color=colors(c, True))
-                # Stream results
-            im_disp = annotator.result()
-
-            return target_bbox, im_disp
-
+        # exemplar features
+        exemplar_image = torch.from_numpy(exemplar_image).to(
+            self.device).permute([2, 0, 1]).unsqueeze(0).float()
+        with torch.set_grad_enabled(False):
+            self.net.eval()
+            self.kernel = self.net.feature(exemplar_image)
 
     def update(self, image):
         image = np.asarray(image)
